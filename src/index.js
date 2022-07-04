@@ -21,15 +21,6 @@ const ERROR_MSG = {
     invalidPwCheck: '비밀번호와 일치하지 않습니다.',
 }
 
-// 2-1 input focus out 될 때 유효성 검사, 가입하기 버튼을 눌렀을 때 모든 필드의 유효성을 검사
-const $submit = document.getElementById('submit')
-$submit.addEventListener('click', (event) => {
-    event.preventDefault()
-    checkValidation($id, $idMsg)
-    checkValidation($pw, $pwMsg)
-    checkValidation($pwCheck, $pwCheckMsg)
-})
-
 // 3. 커스텀 에러 메시지
 const checkRegex = (target) => {
     const { id, value } = target
@@ -66,3 +57,73 @@ $pw.addEventListener('focusout', () => checkValidation($pw, $pwMsg))
 $pwCheck.addEventListener('focusout', () =>
     checkValidation($pwCheck, $pwCheckMsg)
 )
+
+// 4. 입력 확인 모달 창
+// input focus out 될 때 유효성 검사, 가입하기 버튼을 눌렀을 때 모든 필드의 유효성을 검사
+const $submit = document.getElementById('submit')
+const $modal = document.getElementById('modal')
+
+const $confirmId = document.getElementById('confirm-id')
+const $confirmPw = document.getElementById('confirm-pw')
+
+$submit.addEventListener('click', (event) => {
+    // 모든 input의 값이 유효한 상태일 경우 입력한 아이디와 비밀번호를 확인할 수 있는 모달 창 open
+    event.preventDefault()
+    const isValidForm =
+        checkValidation($id, $idMsg) === true &&
+        checkValidation($pw, $pwMsg) === true &&
+        checkValidation($pwCheck, $pwCheckMsg) === true
+
+    if (isValidForm) {
+        $confirmId.innerText = $id.value
+        $confirmPw.innerText = $pw.value
+        $modal.showModal()
+    }
+})
+
+// 4-1. "취소하기" 버튼 클릭 시 모달 창이 닫혀야 합니다
+const $cancelBtn = document.getElementById('cancel-btn')
+$cancelBtn.addEventListener('click', () => {
+    $modal.close()
+})
+
+//4-2. "가입하기" 버튼 클릭 시 윈도우의 alert 창을 이용해 "가입되었습니다 🥳 " 라는 메시지를 출력해야 합니다.
+const $approveBtn = document.getElementById('approve-btn')
+$approveBtn.addEventListener('click', () => {
+    window.alert('가입되었습니다 🥳')
+    $modal.close()
+    $id.value = ''
+    $pw.value = ''
+    $pwCheck.value = ''
+})
+
+// 5. 폰트 사이즈 조절 버튼
+const $html = document.documentElement
+
+const MAX_FONT_SIZE = 20
+const MIN_FONT_SIZE = 12
+
+const $increaseFontBtn = document.getElementById('increase-font-btn')
+const $decreaseFontBtn = document.getElementById('decrease-font-btn')
+
+const getHtmlFontSize = () => {
+    return parseFloat(window.getComputedStyle($html).fontSize)
+}
+
+$increaseFontBtn.addEventListener('click', () => {
+    onclickFontSizeControl('increase')
+})
+
+$decreaseFontBtn.addEventListener('click', () => {
+    onclickFontSizeControl('decrease')
+})
+
+const onclickFontSizeControl = (flag) => {
+    const fontSize = getHtmlFontSize()
+    let newFontSize = flag === 'increase' ? fontSize + 1 : fontSize - 1
+    $html.style.fontSize = newFontSize
+    // 현재 폰트 사이즈가 20px일 경우 + 버튼 비활성화
+    $increaseFontBtn.disabled = newFontSize >= MAX_FONT_SIZE
+    // 현재 폰트 사이즈가 12px일 경우 - 버튼 비활성화
+    $decreaseFontBtn.disabled = newFontSize <= MIN_FONT_SIZE
+}
